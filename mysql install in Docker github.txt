@@ -1,0 +1,120 @@
+##########################Install Docker#####################
+--remove conflict package
+dnf remove podman buildah docker
+
+--install dockers package
+yum install -y yum-utils
+
+--for remove repo
+yum-config-manager --disable docker-ce-stable
+
+--add repo
+yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
+
+yum repolist
+yum install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        Installing:
+        containerd.io                     x86_64         1.6.8-3.1.el8                                     docker-ce-stable                33 M
+        docker-ce                         x86_64         3:20.10.18-3.el8                                  docker-ce-stable                21 M
+        docker-ce-cli                     x86_64         1:20.10.18-3.el8                                  docker-ce-stable                30 M
+        docker-compose-plugin             x86_64         2.10.2-3.el8                                      docker-ce-stable               7.2 M
+
+        Installing dependencies:
+        container-selinux                 noarch         2:2.144.0-1.module+el8.3.0+8221+97165c3f          InstallMedia-AppStream          49 k
+        docker-ce-rootless-extras         x86_64         20.10.18-3.el8                                    docker-ce-stable               4.6 M
+        fuse-overlayfs                    x86_64         1.1.2-3.module+el8.3.0+8221+97165c3f              InstallMedia-AppStream          67 k
+        fuse3-libs                        x86_64         3.2.1-12.el8                                      InstallMedia-BaseOS             94 k
+        libcgroup                         x86_64         0.41-19.el8                                       InstallMedia-BaseOS             70 k
+        libslirp                          x86_64         4.3.1-1.module+el8.3.0+8221+97165c3f              InstallMedia-AppStream          69 k
+        slirp4netns                       x86_64         1.1.4-2.module+el8.3.0+8221+97165c3f              InstallMedia-AppStream          50 k
+
+        Installing weak dependencies:
+        docker-scan-plugin  
+
+--check version
+yum list docker-ce --showduplicates | sort -r
+
+--start docker
+systemctl start docker
+systemctl stop docker
+systemctl status docker
+
+--check version and info
+docker version
+docker info
+
+--check run it properly
+docker run hello-world
+
+--if want to run docker from other user without root
+usermod -aG docker $USER
+reboot
+
+######################Install Mysql on Docker#########################
+--pull docker image
+docker pull mysql/mysql-server:8.0.30
+
+--check image
+docker images
+--check process
+docker ps -a
+docker ps
+
+--run the container {-p 3306:3306 (hostPORT:dockerPORT)}
+docker run -p 3306:3306 --name=mysql_docker -d mysql/mysql-server:8.0.30
+docker ps
+
+docker run -d -p 3306:3306 mysql/mysql-server:8.0.30
+docker logs determined_jackson
+docker stop determined_jackson
+docker rm determined_jackson
+
+--stop the container
+docker ps
+docker start mysql_docker
+docker stop mysql_docker
+docker status mysql_docker
+docker ps
+
+--view log of the container
+docker logs mysql_docker
+docker logs mysql_docker --tail 100
+docker logs mysql_docker -f
+
+--go to the container CMD
+docker exec -it mysql_docker bash
+
+--login to mysql from docker sehll
+[root@ahosan1 ~]# docker exec -it mysql_docker bash
+bash-4.4# mysql -u root -p
+Enter password: ahosan123
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 58
+Server version: 8.0.30
+
+Copyright (c) 2000, 2022, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'ahosan123';
+mysql> CREATE USER 'root'@'%' IDENTIFIED BY 'ahosan123';
+mysql> GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+mysql> FLUSH PRIVILEGES;
+exit
+
+--stop the container
+docker ps
+docker start mysql_docker
+docker stop mysql_docker
+docker status mysql_docker
+docker ps
+
+--connect to mysql from host
+now connect to 3306 though MySQL Workbench
+
